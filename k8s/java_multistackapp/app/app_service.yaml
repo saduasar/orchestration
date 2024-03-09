@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: vproapp  # Name of the Service
+spec:
+  selector:
+    app: vproapp  # Selects pods with the label "app: vproapp"
+  type: LoadBalancer  # Exposes the Service externally using a LoadBalancer
+  ports:
+    - protocol: TCP  # Protocol used for the ports
+      port: 80       # Port exposed on the Service
+      targetPort: 8080  # Port on the pods that the Service forwards traffic to
+      # Specify the targetPort where the application in the pods is listening
+

@@ -1,0 +1,50 @@
+version: '3.3'  # Specify the version of Docker Compose syntax being used
+
+services:  # Define the services that compose the application
+
+  # Service for the MySQL database
+  ecomdb:
+    container_name: ecomdb
+    image: saduasar/ecommdb:v1  # Use a specific Docker image for the database
+    build:
+      context: ./Dockerfiles/db  # Build the image using Dockerfile in the specified context
+    ports:
+      - "3306:3306"  # Map host port 3306 to container port 3306 for MySQL connections
+    volumes:
+      - vprodbdata:/var/lib/mysql  # Mount a volume to persist MySQL data
+    environment:
+      - MYSQL_PASSWORD=admin123  # Set environment variable for MySQL root password
+      - MYSQL_USER=admin  # Set environment variable for MySQL username
+      - MYSQL_DATABASE=ecomdb  # Set environment variable for MySQL database name
+      - MYSQL_ROOT_PASSWORD=ecomdbpass  # Set environment variable for MySQL root password
+    restart: unless-stopped # Restart policy: always restart unless explicitly stopped
+    networks:
+      - my_network # Connect to the custom network my_network
+
+  # Service for the Php Web App
+  ecomapp:
+    container_name: ecomapp
+    image: saduasar/ecomm-php-app:v1
+    build:
+      context: ./  # Build the image using the Dockerfile in the current directory
+    ports:
+      - 80:80  # Map host port 80 to container port 80 for web app access
+    environment:
+      - MYSQL_USER=admin  # Set environment variable for MySQL username
+      - DB_HOST=ecomdb  # Set environment variable for MySQL host
+      - MYSQL_PASSWORD=admin123  # Set environment variable for MySQL password
+      - MYSQL_DATABASE=ecomdb  # Set environment variable for MySQL database name
+    depends_on:
+      - ecomdb  # Specify that ecomdb service must be started before ecomapp
+    restart: unless-stopped # Restart policy: always restart unless explicitly stopped
+    networks:
+      - my_network # Connect to the custom network my_network
+
+# Define a custom network for the services to communicate
+networks:
+  my_network:
+    driver: bridge # Use the bridge network driver
+
+volumes:
+  vprodbdata: {}  # Define a named volume for MySQL data
+

@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ecommapp  # Name of the Deployment
+  labels:
+    app: ecommapp  # Label to identify the Deployment
+spec:
+  replicas: 1  # Number of replicas (instances) of the pod
+  selector:
+    matchLabels:
+      app: ecommapp  # Label selector to match pods managed by this Deployment
+  template:
+    metadata:
+      labels:
+        app: ecommapp  # Labels for pods created by this template
+    spec:
+      containers:
+      - name: ecommapp  # Name of the container
+        image: saduasar/ecomm-php-app:v1  # Docker image for the container
+        ports:
+        - name: ecommapp-port  # Name of the port
+          containerPort: 8080  # Port to expose on the container
+      initContainers:  # Init containers run before the main container starts
+      - name: init-mydb  # Name of the init container
+        image: busybox  # Docker image for the init container
+        command: ['sh', '-c', 'until nslookup ecommdb.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for vprodb; sleep 2; done;']
+        # Command to run in the init container, waits until DNS resolves for vprodb service
+  

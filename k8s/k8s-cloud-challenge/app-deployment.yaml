@@ -19,7 +19,7 @@ spec:
         image: saduasar/ecomm-php-app:v1  # Docker image for the container
         ports:
         - name: ecommapp-port  # Name of the port
-          containerPort: 8080  # Port to expose on the container
+          containerPort: 80  # Port to expose on the container
       initContainers:  # Init containers run before the main container starts
       - name: init-mydb  # Name of the init container
         image: busybox  # Docker image for the init container

@@ -1,15 +1,15 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ecommdb  # Name of the Deployment
+  name: ecomdb  # Name of the Deployment
   labels:
-    app: ecommdb  # Label to identify the Deployment
+    app: ecomdb  # Label to identify the Deployment
 spec:
   replicas: 1  # Number of replicas (instances) of the pod
   template:
     metadata:
       labels:
-        app: ecommdb  # Labels for pods created by this template
+        app: ecomdb  # Labels for pods created by this template
     spec:
       initContainers:
       - name: init-cleanup  # Name of the init container
@@ -19,8 +19,8 @@ spec:
         - name: mysql-data  # Name of the volume to mount
           mountPath: /var/lib/mysql  # Mount path inside the container
       containers:
-      - name: ecommdb  # Name of the container
-        image: saduasar/ecommdb:v1  # Docker image for the container
+      - name: ecomdb  # Name of the container
+        image: saduasar/ecomdb:v1  # Docker image for the container
         env:
           - name: MYSQL_ROOT_PASSWORD  # Name of the environment variable
             valueFrom:
@@ -51,5 +51,5 @@ spec:
           type: DirectoryOrCreate # this will create the dir /data if it doesn't exist on the host machine.
   selector:
     matchLabels:
-      app: ecommdb  # Selector to match pods managed by this Deployment
+      app: ecomdb  # Selector to match pods managed by this Deployment
 

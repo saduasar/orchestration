@@ -51,6 +51,13 @@ spec:
         ports:
         - name: ecommapp-port  # Name of the port
           containerPort: 80  # Port to expose on the container
+        resources:
+          limits:
+            cpu: "30m"  # Maximum CPU limit for the container
+            memory: "200Mi"  # Maximum memory limit for the container
+          requests:
+            cpu: "20m"  # CPU request for the container
+            memory: "100Mi"  # Memory request for the container
       initContainers:  # Init containers run before the main container starts
       - name: init-mydb  # Name of the init container
         image: busybox  # Docker image for the init container

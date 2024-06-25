@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ecomdb  # Name of the Deployment
+  labels:
+    app: ecomdb  # Label to identify the Deployment
+spec:
+  replicas: 1  # Number of replicas (instances) of the pod
+  template:
+    metadata:
+      labels:
+        app: ecomdb  # Labels for pods created by this template
+    spec:
+      initContainers:
+      - name: init-cleanup  # Name of the init container
+        image: busybox  # Docker image for the init container
+        command: ["sh", "-c", "rm -rf /var/lib/mysql/lost+found"]  # Command to clean up the directory
+        volumeMounts:
+        - name: mariadb-pv  # Name of the volume to mount
+          mountPath: /var/lib/mysql  # Mount path inside the container
+      containers:
+      - name: ecomdb  # Name of the container
+        image: saduasar/ecommdb:v1  # Docker image for the container
+        volumeMounts:
+          - name: mariadb-pv
+            mountPath: /var/lib/mysql
+        env:
+          - name: MYSQL_ROOT_PASSWORD  # Name of the environment variable
+            valueFrom:
+              secretKeyRef:
+                name: dbsecret  # Name of the Secret
+                key: db_root_password  # Key in the Secret
+
+          - name: MYSQL_PASSWORD 
+            valueFrom:
+              secretKeyRef:
+                name: dbsecret  # Name of the Secret
+                key: db_password
+
+          - name: MYSQL_USER
+            valueFrom:
+              secretKeyRef:
+                name: dbsecret  # Name of the Secret
+                key: db_user
+
+          - name: MYSQL_DATABASE
+            value: "ecomdb"
+        ports:
+        - containerPort: 3306  # Port to expose on the container
+      volumes:
+        - name: mariadb-pv
+          persistentVolumeClaim:
+            claimName: ebs-claim
+  selector:
+    matchLabels:
+      app: ecomdb  # Selector to match pods managed by this Deployment
+

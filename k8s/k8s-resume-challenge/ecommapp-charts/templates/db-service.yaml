@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ecomdb  # Name of the Service
+spec:
+  selector:
+    app: ecomdb  # Selects pods with the label "app: db"
+  ports:
+    - protocol: TCP  # Protocol used for the ports
+      port: 3306     # Port exposed on the Service
+      targetPort: 3306  # Port on the pods that the Service forwards traffic to
+      # Specify the targetPort where the application in the pods is listening
+  type: ClusterIP  # Type of the Service, ClusterIP exposes the Service internally within the cluster
+

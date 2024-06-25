@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ecommapp  # Name of the Deployment
+  labels:
+    app: ecommapp  # Label to identify the Deployment
+spec:
+  replicas: 3  # Number of replicas (instances) of the pod
+  selector:
+    matchLabels:
+      app: ecommapp  # Label selector to match pods managed by this Deployment
+  template:
+    metadata:
+      labels:
+        app: ecommapp  # Labels for pods created by this template
+    spec:
+      containers:
+      - name: ecommapp  # Name of the container
+        image: saduasar/ecomm-php-app:v2  # Docker image for the container
+        env:
+          - name: DB_HOST  # Name of the environment variable
+            valueFrom:
+              secretKeyRef:
+                name: app-secret  # Name of the Secret
+                key: DB_HOST  # Key in the Secret
+
+          - name: DB_USER  # Name of the environment variable
+            valueFrom:
+              secretKeyRef:
+                name: app-secret  # Name of the Secret
+                key: DB_USER  # Key in the Secret
+    
+          - name: DB_PASSWORD  # Name of the environment variable
+            valueFrom:
+              secretKeyRef:
+                name: app-secret  # Name of the Secret
+                key: DB_PASSWORD  # Key in the Secret
+
+          - name: DB_NAME  # Name of the environment variable
+            valueFrom:
+              secretKeyRef:
+                name: app-secret  # Name of the Secret
+                key: DB_NAME  # Key in the Secret
+
+          - name: FEATURE_DARK_MODE
+            valueFrom: 
+              configMapKeyRef:
+                name: feature-toggle-config # The ConfigMap this value comes from.
+                key: FEATURE_DARK_MODE # The key to fetch.
+
+        ports:
+        - name: ecommapp-port  # Name of the port
+          containerPort: 80  # Port to expose on the container
+        resources:
+          limits:
+            cpu: "30m"  # Maximum CPU limit for the container
+            memory: "200Mi"  # Maximum memory limit for the container
+          requests:
+            cpu: "20m"  # CPU request for the container
+            memory: "100Mi"  # Memory request for the container
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 10
+          periodSeconds: 3
+          failureThreshold: 5
+        readinessProbe:            # Define the readiness probe for the container
+          httpGet:
+            path: /       # Specify the HTTP path to be checked
+            port: 80
+          initialDelaySeconds: 10
+          periodSeconds: 3
+          failureThreshold: 5
+
+      initContainers:  # Init containers run before the main container starts
+      - name: init-mydb  # Name of the init container
+        image: busybox  # Docker image for the init container
+        command: ['sh', '-c', 'until nslookup ecomdb.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for vprodb; sleep 2; done;']
+        # Command to run in the init container, waits until DNS resolves for ecomdb service
+  

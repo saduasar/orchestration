@@ -1,4 +1,4 @@
-#Base image
+#######Base image
 FROM php:7.4-apache
 
 # Install and enable mysqli extension
